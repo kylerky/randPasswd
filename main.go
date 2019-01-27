@@ -2,6 +2,7 @@ package main
 
 import (
 	"crypto/rand"
+	"errors"
 	"flag"
 	"fmt"
 	"log"
@@ -22,10 +23,13 @@ const (
 	fDigit = 'd'
 )
 
+type sets []string
+
 var (
 	rFlag string
 	// the desired password length
-	requestLen uint
+	requestLen  uint
+	customMusts sets
 )
 
 func init() {
@@ -42,6 +46,11 @@ func init() {
 	const lUsage = "the length of the password to be generated"
 	flag.UintVar(&requestLen, "l", 12, lUsage+" (shorthand for length)")
 	flag.UintVar(&requestLen, "length", 12, lUsage)
+
+	// -must, -m
+	const mUsage = "add a custom mandatory set to the list, can be used more than once to add multiple sets"
+	flag.Var(&customMusts, "m", mUsage+" (shorthand for must)")
+	flag.Var(&customMusts, "must", mUsage)
 }
 
 func main() {
@@ -62,6 +71,10 @@ func main() {
 	}
 	if needDigit {
 		mustSets = append(mustSets, digits)
+	}
+
+	for _, customSet := range customMusts {
+		mustSets = append(mustSets, customSet)
 	}
 
 	logger := log.New(os.Stderr, "", 0)
@@ -133,5 +146,18 @@ func shuffle(arr []byte) error {
 		arr[i+index] = tmp
 	}
 
+	return nil
+}
+
+func (s *sets) String() string {
+	return fmt.Sprint([]string(*s))
+}
+
+func (s *sets) Set(value string) error {
+	if value == "" {
+		return errors.New("a mandatory set cannot be empty")
+	}
+
+	customMusts = append(customMusts, value)
 	return nil
 }
