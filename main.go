@@ -24,6 +24,8 @@ const (
 
 var (
 	rFlag string
+	// the desired password length
+	requestLen uint
 )
 
 func init() {
@@ -35,6 +37,11 @@ func init() {
 	var rDefault = string(fLower) + string(fUpper) + string(fDigit)
 	flag.StringVar(&rFlag, "a", rDefault, rUsage+" (shorthand for add)")
 	flag.StringVar(&rFlag, "add", rDefault, rUsage)
+
+	// -length, -l
+	const lUsage = "the length of the password to be generated"
+	flag.UintVar(&requestLen, "l", 12, lUsage+" (shorthand for length)")
+	flag.UintVar(&requestLen, "length", 12, lUsage)
 }
 
 func main() {
@@ -45,9 +52,6 @@ func main() {
 	needDigit := strings.ContainsRune(rFlag, fDigit)
 
 	var mustSets []string
-
-	// the desired password length
-	requestLen := 12
 
 	// mandatory sets
 	if needLower {
@@ -61,9 +65,14 @@ func main() {
 	}
 
 	logger := log.New(os.Stderr, "", 0)
+	if requestLen == 0 || requestLen < uint(len(mustSets)) {
+		logger.Fatal("The length of the password must be possitive\n" +
+			"and at least the number of mandatory sets")
+	}
+
 	// the password
 	passwd := make([]byte, requestLen)
-	passwdLen := 0
+	passwdLen := uint(0)
 	// select one from each mandatory set
 	for _, str := range mustSets {
 		index, err := randInt(len(str))
