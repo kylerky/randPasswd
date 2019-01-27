@@ -80,9 +80,7 @@ func main() {
 		mustSets = append(mustSets, digits)
 	}
 
-	for _, customSet := range customMusts {
-		mustSets = append(mustSets, customSet)
-	}
+	mustSets = append(mustSets, customMusts...)
 
 	logger := log.New(os.Stderr, "", 0)
 	if requestLen == 0 || requestLen < uint(len(mustSets)) {
