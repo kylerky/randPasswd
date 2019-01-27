@@ -30,6 +30,7 @@ var (
 	// the desired password length
 	requestLen  uint
 	customMusts sets
+	dSet        string
 )
 
 func init() {
@@ -51,6 +52,12 @@ func init() {
 	const mUsage = "add a custom mandatory set to the list, can be used more than once to add multiple sets"
 	flag.Var(&customMusts, "m", mUsage+" (shorthand for must)")
 	flag.Var(&customMusts, "must", mUsage)
+
+	// -optional, -d, -discretionary
+	const dUsage = "add some discretionary (optional) bytes to choose from"
+	flag.StringVar(&dSet, "d", "", dUsage+"(shorthand for optional)")
+	flag.StringVar(&dSet, "optional", "", dUsage)
+	flag.StringVar(&dSet, "discretionary", "", dUsage)
 }
 
 func main() {
@@ -97,7 +104,7 @@ func main() {
 		passwdLen++
 	}
 
-	pool := ""
+	pool := dSet
 	for _, str := range mustSets {
 		pool = pool + str
 	}
