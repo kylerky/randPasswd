@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"crypto/rand"
 	"errors"
 	"flag"
@@ -102,10 +103,12 @@ func main() {
 		passwdLen++
 	}
 
-	pool := dSet
+	var poolBuf bytes.Buffer
+	poolBuf.WriteString(dSet)
 	for _, str := range mustSets {
-		pool = pool + str
+		poolBuf.WriteString(str)
 	}
+	pool := poolBuf.Bytes()
 	poolLen := len(pool)
 
 	if poolLen == 0 {
